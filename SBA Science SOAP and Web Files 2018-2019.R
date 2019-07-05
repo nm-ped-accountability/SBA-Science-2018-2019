@@ -228,14 +228,11 @@ write.csv(dat, "SBA Science Spring 2018-2019_Cleaned_07012019.csv",
 ################################################################################
 ### calculate rates for SOAP and web files
 ################################################################################
-dat$nrecord <- 1
 dat$allstudents <- "All Students"
 dat$statecode <- 999
 
 groups <- c("allstudents", "gender", "eth", "swd", "frl", 
             "ell", "migrant", "military", "homeless", "foster")
-str(dat)
-    
 
 dat$level1[dat$PL == 1] <- 1
 dat$level1[is.na(dat$level1)] <- 0
@@ -246,22 +243,21 @@ dat$level3[is.na(dat$level3)] <- 0
 dat$level4[dat$PL == 4] <- 1
 dat$level4[is.na(dat$level4)] <- 0
 
-
 Rates <- data.frame()
 
 rate <- function(dataset, code) {
     
     for (group in groups) {
         GroupRate <- dataset %>%
-            select(code, group, testgrade, nrecord, 
+            select(code, group, testgrade,
                    level1, level2, level3, level4, proficient) %>%
             group_by_(code, group, "testgrade") %>%
-            summarise(NStudents = sum(nrecord),
-                      Level1 = (sum(level1) / sum(nrecord)) * 100,
-                      Level2 = (sum(level2) / sum(nrecord)) * 100,
-                      Level3 = (sum(level3) / sum(nrecord)) * 100,
-                      Level4 = (sum(level4) / sum(nrecord)) * 100,
-                      ProficiencyRate = (sum(proficient) / sum(nrecord) * 100))
+            summarise(NStudents = n(),
+                      Level1 = (sum(level1) / NStudents) * 100,
+                      Level2 = (sum(level2) / NStudents) * 100,
+                      Level3 = (sum(level3) / NStudents) * 100,
+                      Level4 = (sum(level4) / NStudents) * 100,
+                      ProficiencyRate = (sum(proficient) / NStudents * 100))
         names(GroupRate) <- c("Code", "Group", "Grade", "NStudents", 
                               "Level1", "Level2", "Level3", "Level4",
                               "ProficiencyRate")
@@ -516,7 +512,6 @@ colnames(level4)[16] <- "Merge4"
 
 # merge files
 webfile <- cbind(level1, level2[c(15, 16)], level3[c(15, 16)], level4[c(15, 16)])
-View(webfile)
 
 # check if Merge1 and Merge2 are the same
 all(webfile$Merge1 == webfile$Merge2)
