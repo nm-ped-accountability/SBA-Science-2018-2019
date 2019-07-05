@@ -1,6 +1,546 @@
 
-## SBA Science 2018-2019 SOAP and Web Files
+### SBA Science 2018-2019
 
-sba <- read.csv("ADDED DEMO_NMSBA1819Admin1StudentResultsUNMASKED_Updated 06202019.csv",
+################################################################################
+### process and clean raw data file
+################################################################################
+
+rm(list = ls())
+library(stringi)
+library(lubridate)
+library(Hmisc)
+library(tidyverse)
+
+# open files
+raw <- read.csv("NMSBA1819Admin1StudentResultsUNMASKED_Updated 07052019.csv",
                 header = TRUE, stringsAsFactors = FALSE)
-head(sba)
+dat <- raw
+
+schools <- read.csv("Master Schools 2019 V3.csv", 
+                    header = TRUE, stringsAsFactors = FALSE)
+
+################################################################################
+## recode variables
+
+# schnumb
+dat$schnumb <- dat$DisCode * 1000 + dat$SchCode
+dat$schnumb2 <- dat$S_DISTRICT_CODE * 1000 + dat$S_LOCATION_CODE
+nrow(dat[dat$schnumb != dat$schnumb2, ]) #453 records have different schnumbs
+dat$schnumb2 <- NULL
+# vendor schnumbs will be used
+
+# distcode
+dat$distcode <- dat$DisCode
+dat$distname <- schools$distname[match(dat$distcode, schools$distcode)]
+
+# schcode
+dat$schcode <- dat$SchCode
+dat$schname <- schools$schname[match(dat$schnumb, schools$schnumb)]
+
+# stid
+dat$stid <- dat$STUID
+
+# last
+dat$last <- dat$S_LASTNAME
+
+# first
+dat$fist <- dat$S_FIRSTNAME
+
+# mi
+dat$mi <- dat$S_MIDDLE_NAME
+dat$mi <- toupper(dat$mi)
+table(dat$mi)
+dat$mi <- gsub("-", "", dat$mi)
+dat$mi <- gsub("NULL", "", dat$mi)
+table(dat$mi)
+
+# dob
+dat$dob <- dat$S_DOB
+dat$dob <- mdy(dat$dob)
+str(dat$dob)
+
+# test grade
+dat$testgrade <- dat$Grade
+table(dat$testgrade)
+dat$testgrade[dat$testgrade == "HS"] <- "11"
+table(dat$testgrade)
+# test grade will be used
+
+# STARS grade
+dat$STARSgrade <- dat$S_GRADE
+table(dat$STARSgrade)
+
+# eth
+dat$eth <- dat$S_ETNICITY
+table(dat$eth)
+table(dat$S_HISPANIC_INDICATOR)
+dat$eth[dat$S_HISPANIC_INDICATOR == "Yes"] <- "Hispanic"
+dat$eth[dat$eth == "Native Hawaiian or Other Pacific Islander"] <- "Asian"
+dat$eth[dat$eth == "Black or African American"] <- "African American"
+dat$eth[dat$eth == "American Indian/Alaskan Native"] <- "Native American"
+table(dat$eth)
+str(dat$eth)
+
+# gender
+dat$gender <- dat$S_GENDER
+table(dat$gender)
+table(dat$gender)
+str(dat$gender)
+
+# swd
+dat$swd <- dat$S_SPECIAL_ED
+table(dat$swd)
+dat$swd[dat$swd == "Y"] <- "Students with Disabilities"
+dat$swd[dat$swd == "N"] <- "Non SWD"
+table(dat$swd)
+dat$swd <- as.factor(dat$swd)
+
+# frl
+table(dat$S_FRLP)
+dat$frl[dat$S_FRLP == "F"] <- "Economically Disadvantaged"
+dat$frl[dat$S_FRLP == "R"] <- "Economically Disadvantaged"
+dat$frl[dat$S_FRLP == "N"] <- "Non ED"
+table(dat$frl)
+
+# ell
+dat$ell[dat$S_ELL_STATUS == "Y"] <- "English Learners"
+dat$ell[dat$S_ELL_STATUS == "N"] <- "Non EL"
+table(dat$ell)
+
+# migrant
+dat$migrant[dat$S_MIGRANT == "Y"] <- "Migrants"
+dat$migrant[dat$S_MIGRANT == "N"] <- "Non Migrant"
+dat$migrant[dat$S_MIGRANT == "NULL"] <- "Non Migrant"
+table(dat$migrant)
+
+# military
+# active, national guard, researve
+dat$military[dat$S_MILITARY == "Active"] <- "Military"
+dat$military[dat$S_MILITARY == "National Guard"] <- "Military"
+dat$military[dat$S_MILITARY == "Reserve"] <- "Military"
+dat$military[dat$S_MILITARY == "NULL"] <- "Non Military"
+table(dat$military)
+
+# homeless
+dat$homeless <- dat$S_HOMELESS
+table(dat$homeless)
+dat$homeless <- gsub("NULL", "Not Homeless", dat$homeless)
+table(dat$homeless)
+
+# foster
+table(dat$S_FOSTER)
+dat$foster[dat$S_FOSTER == "Y"] <- "Foster Care"
+dat$foster[dat$S_FOSTER == "NULL"] <- "Not Foster Care"
+table(dat$foster)
+
+# test name
+dat$testname <- "SBASCI"
+
+# subtest
+dat$subtest <- "SCI"
+
+# test language
+dat$testlang <- dat$SciTestLanguage
+table(dat$testlang)
+
+# accomodation
+dat$accommodation[dat$ELLSciAccom20 == 1] <- 1
+dat$accommodation[dat$ELLSciAccom21 == 1] <- 1
+dat$accommodation[dat$ELLSciAccom22 == 1] <- 1
+dat$accommodation[dat$ELLSciAccom23 == 1] <- 1
+dat$accommodation[dat$ELLSciAccom24 == 1] <- 1
+dat$accommodation[dat$ELLSciAccom25 == 1] <- 1
+dat$accommodation[dat$ELLSciAccom26 == 1] <- 1
+dat$accommodation[dat$ELLSciAccom27 == 1] <- 1
+dat$accommodation[dat$ELLSciAccom28 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom01 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom02 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom03 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom04 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom05 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom06 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom07 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom08 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom09 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom10 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom11 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom12 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom13 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom14 == 1] <- 1
+dat$accommodation[dat$SWDSciAccom15 == 1] <- 1
+dat$accommodation[dat$SciAccomLineReader == 1] <- 1
+dat$accommodation[dat$SciAccomMaskingAnswer == 1] <- 1
+dat$accommodation[dat$SciAccomMaskingCustom == 1] <- 1
+dat$accommodation[dat$SciAccomNativeLanguage == 1] <- 1
+dat$accommodation[dat$SciAccomReverseContrast == 1] <- 1
+dat$accommodation[(is.na(dat$accommodation))] <- 0
+table(dat$accommodation)
+
+# cbt
+dat$cbt[dat$SciCBT == 1] <- "PBT only"
+dat$cbt[dat$SciCBT == 2] <- "CBT only"
+dat$cbt[dat$SciCBT == 3] <- "CBT and PBT"
+table(dat$cbt)
+
+# testbookid
+dat$testbookid <- dat$BookletID
+
+# scale scores
+dat$SciScaleScore <- as.character(dat$SciScaleScore)
+dat$SS <- stri_sub(dat$SciScaleScore, -2, -1) #keep only the last 2 digits
+table(dat$SciScaleScore)
+table(dat$SS)
+
+# proficiency levels
+table(dat$SciPerformanceLevel)
+dat$PL <- dat$SciPerformanceLevel
+# 2018-2019: 2255 invalid scores
+
+# proficient
+dat$proficient[dat$PL == 1] <- 0
+dat$proficient[dat$PL == 2] <- 0
+dat$proficient[dat$PL == 3] <- 1
+dat$proficient[dat$PL == 4] <- 1
+
+# test completion code
+dat$TC <- dat$SciTC
+
+# snapshot date
+dat$status <- dat$STATUS
+
+################################################################################
+## remove invalid records and save file
+table(dat$TC[dat$PL != 5]) #all valid records have TC 0
+table(dat$SS[dat$PL == 5])
+table(dat$SS[dat$PL != 5])
+
+# remove invalid records
+dat <- dat[dat$PL != 5, ]
+
+# remove extra columns
+names(dat)
+dat <- dat[c(395:426)]
+
+# save file
+write.csv(dat, "SBA Science Spring 2018-2019_Cleaned_07012019.csv",
+          row.names = FALSE, quote = FALSE, na = "")
+
+################################################################################
+### calculate rates for SOAP and web files
+################################################################################
+dat$nrecord <- 1
+dat$allstudents <- "All Students"
+dat$statecode <- 999
+
+groups <- c("allstudents", "gender", "eth", "swd", "frl", 
+            "ell", "migrant", "military", "homeless", "foster")
+str(dat)
+    
+
+dat$level1[dat$PL == 1] <- 1
+dat$level1[is.na(dat$level1)] <- 0
+dat$level2[dat$PL == 2] <- 1
+dat$level2[is.na(dat$level2)] <- 0
+dat$level3[dat$PL == 3] <- 1
+dat$level3[is.na(dat$level3)] <- 0
+dat$level4[dat$PL == 4] <- 1
+dat$level4[is.na(dat$level4)] <- 0
+
+
+Rates <- data.frame()
+
+rate <- function(dataset, code) {
+    
+    for (group in groups) {
+        GroupRate <- dataset %>%
+            select(code, group, testgrade, nrecord, 
+                   level1, level2, level3, level4, proficient) %>%
+            group_by_(code, group, "testgrade") %>%
+            summarise(NStudents = sum(nrecord),
+                      Level1 = (sum(level1) / sum(nrecord)) * 100,
+                      Level2 = (sum(level2) / sum(nrecord)) * 100,
+                      Level3 = (sum(level3) / sum(nrecord)) * 100,
+                      Level4 = (sum(level4) / sum(nrecord)) * 100,
+                      ProficiencyRate = (sum(proficient) / sum(nrecord) * 100))
+        names(GroupRate) <- c("Code", "Group", "Grade", "NStudents", 
+                              "Level1", "Level2", "Level3", "Level4",
+                              "ProficiencyRate")
+        
+        GroupRate <- GroupRate[GroupRate$Code != 999999, ]
+        Rates <- rbind(GroupRate, Rates)
+    }
+    Rates
+}
+
+# state rates
+stateRates <- rate(dat, "statecode")
+stateRates$schnumb <- 999999
+stateRates$DistrictCode <- 999
+stateRates$SchoolCode <- 999
+stateRates$SORT <- 1
+
+# district rates
+districtRates <- rate(dat, "distcode")
+districtRates$schnumb <- districtRates$Code * 1000
+districtRates$DistrictCode <- districtRates$Code
+districtRates$SchoolCode <- 0
+districtRates$SORT <- 2
+
+# school rates
+schoolRates <- rate(dat, "schnumb")
+schoolRates$schnumb <- schoolRates$Code
+schoolRates$DistrictCode <- floor(schoolRates$Code / 1000)
+schoolRates$SchoolCode <- schoolRates$Code - (schoolRates$DistrictCode * 1000)
+schoolRates$SORT <- 3
+
+
+
+################################################################################
+### merging, formatting, masking
+################################################################################
+all <- rbind(stateRates, districtRates, schoolRates)
+all$Grade <- as.numeric(all$Grade)
+
+# sort codes for subgroups
+table(all$Group)
+all$SORTCODE[all$Group == "All Students"] <- 1
+all$SORTCODE[all$Group == "Female"] <- 2
+all$SORTCODE[all$Group == "Male"] <- 3
+all$SORTCODE[all$Group == "Caucasian"] <- 4
+all$SORTCODE[all$Group == "African American"] <- 5
+all$SORTCODE[all$Group == "Hispanic"] <- 6
+all$SORTCODE[all$Group == "Asian"] <- 7
+all$SORTCODE[all$Group == "Native American"] <- 8
+all$SORTCODE[all$Group == "Economically Disadvantaged"] <- 9
+all$SORTCODE[all$Group == "Students with Disabilities"] <- 10
+all$SORTCODE[all$Group == "English Learners"] <- 11
+all$SORTCODE[all$Group == "Homeless"] <- 12
+all$SORTCODE[all$Group == "Military"] <- 13
+all$SORTCODE[all$Group == "Foster Care"] <- 14
+all$SORTCODE[all$Group == "Migrant"] <- 15
+table(all$SORTCODE)
+
+# add district and school names
+all$DistrictName <- schools$distname[match(all$DistrictCode, schools$distcode)]
+all$SchoolName <- schools$schname[match(all$schnumb, schools$schnumb)]
+all$DistrictName[all$SORT == 1] <- "Statewide"
+all$SchoolName[all$SORT == 1] <- "All Students"
+all$SchoolName[all$SORT == 2] <- "Districtwide"
+
+# check for missing district and school names
+all[is.na(all$DistrictName), ] #none
+all[is.na(all$SchoolName), ] #none
+
+################################################################################
+# SOAP file
+SOAP <- all[c("schnumb", "DistrictCode", "DistrictName", 
+              "SchoolCode", "SchoolName", "Grade", "Group", "NStudents",
+              "Level1", "Level2", "Level3", "Level4", "ProficiencyRate",
+              "SORTCODE", "SORT")]
+nrow(SOAP) #20819
+SOAP <- SOAP[!is.na(SOAP$SORTCODE), ]
+nrow(SOAP) #12529
+
+# round to one digit
+head(SOAP)
+SOAP$Level1 <- round(SOAP$Level1, digits = 1)
+SOAP$Level2 <- round(SOAP$Level2, digits = 1)
+SOAP$Level3 <- round(SOAP$Level3, digits = 1)
+SOAP$Level4 <- round(SOAP$Level4, digits = 1)
+SOAP$ProficiencyRate <- round(SOAP$ProficiencyRate, digits = 1)
+head(SOAP)
+
+# sorting
+SOAP <- SOAP[order(SOAP$SORT, SOAP$schnumb, SOAP$SORTCODE, SOAP$Grade), ]
+SOAP$SORT <- NULL
+SOAP$SORTCODE <- NULL
+
+write.csv(SOAP, "SBA Science UNMASKED SOAP 2018-2019.csv",
+          row.names = FALSE, quote = FALSE, na = "")
+
+################################################################################
+# web file
+web <- all[c("schnumb", "DistrictCode", "DistrictName", 
+             "SchoolCode", "SchoolName", "Grade", "Group", "NStudents",
+             "Level1", "Level2", "Level3", "Level4",
+             "SORTCODE", "SORT")]
+
+web <- web[!is.na(web$SORTCODE), ]
+
+# round to integers
+head(web)
+web$Level1 <- round(web$Level1, digits = 0)
+web$Level2 <- round(web$Level2, digits = 0)
+web$Level3 <- round(web$Level3, digits = 0)
+web$Level4 <- round(web$Level4, digits = 0)
+head(web)
+
+# check totals
+web$total <- rowSums(web[, c("Level1", "Level2", "Level3", "Level4")])
+range(web$total) #98-101
+web$total <- NULL
+
+
+###############################################
+## masking
+
+# remove records with fewer than 10 students
+nrow(web) #12529
+web <- web[web$NStudents >= 10, ]
+nrow(web) #7158
+
+masked <- data.frame()
+
+mask <- function(dataset, level) {
+    
+    for (row in 1:nrow(dataset)) {
+        row <- dataset[row, ]
+        
+        # N = 301 or higher
+        if (row$NStudents > 300) {
+            row$pct[row[[level]] >= 99] <- "GE 99"
+            row$pct[row[[level]] <= 1] <- "LE 1"
+            row$pct[row[[level]] < 99 & row[[level]] > 1] <- row[[level]]
+            row$merge <- 0
+        }
+        
+        # N = 201-300
+        else if (row$NStudents > 200 & row$NStudents <= 300) {
+            row$pct[row[[level]] >= 98] <- "GE 98"
+            row$pct[row[[level]] <= 2] <- "LE 2"
+            row$pct[row[[level]] < 98 & row[[level]] > 2] <- row[[level]]
+            row$merge <- 0
+        }
+        
+        # N = 101-200
+        else if (row$NStudents > 100 & row$NStudents <= 200) {
+            row$pct[row[[level]] < 3] <- "LE 2"
+            row$pct[row[[level]] >= 3 & row[[level]] < 5] <- "3-4"
+            row$pct[row[[level]] >= 5 & row[[level]] < 10] <- "5-9"
+            row$pct[row[[level]] >= 10 & row[[level]] < 15] <- "10-14"
+            row$pct[row[[level]] >= 15 & row[[level]] < 20] <- "15-19"
+            row$pct[row[[level]] >= 20 & row[[level]] < 25] <- "20-24"
+            row$pct[row[[level]] >= 25 & row[[level]] < 30] <- "25-29"
+            row$pct[row[[level]] >= 30 & row[[level]] < 35] <- "30-34"
+            row$pct[row[[level]] >= 35 & row[[level]] < 40] <- "35-39"
+            row$pct[row[[level]] >= 40 & row[[level]] < 45] <- "40-44"
+            row$pct[row[[level]] >= 45 & row[[level]] < 40] <- "45-49"
+            row$pct[row[[level]] >= 50 & row[[level]] < 55] <- "50-54"
+            row$pct[row[[level]] >= 55 & row[[level]] < 60] <- "55-59"
+            row$pct[row[[level]] >= 60 & row[[level]] < 65] <- "60-64"
+            row$pct[row[[level]] >= 65 & row[[level]] < 70] <- "65-69"
+            row$pct[row[[level]] >= 70 & row[[level]] < 75] <- "70-74"
+            row$pct[row[[level]] >= 75 & row[[level]] < 80] <- "75-79"
+            row$pct[row[[level]] >= 80 & row[[level]] < 85] <- "80-84"
+            row$pct[row[[level]] >= 85 & row[[level]] < 90] <- "85-89"
+            row$pct[row[[level]] >= 90 & row[[level]] < 95] <- "90-94"
+            row$pct[row[[level]] >= 95 & row[[level]] < 98] <- "95-97"
+            row$pct[row[[level]] >= 98] <- "GE 98"
+            row$merge <- 0
+        }
+        
+        # N = 41-100
+        else if (row$NStudents > 40 & row$NStudents <= 100) {
+            row$pct[row[[level]] < 6] <- "LE 5"
+            row$pct[row[[level]] >= 6 & row[[level]] < 10] <- "6-9"
+            row$pct[row[[level]] >= 10 & row[[level]] < 15] <- "10-14"
+            row$pct[row[[level]] >= 15 & row[[level]] < 20] <- "15-19"
+            row$pct[row[[level]] >= 20 & row[[level]] < 25] <- "20-24"
+            row$pct[row[[level]] >= 25 & row[[level]] < 30] <- "25-29"
+            row$pct[row[[level]] >= 30 & row[[level]] < 35] <- "30-34"
+            row$pct[row[[level]] >= 35 & row[[level]] < 40] <- "35-39"
+            row$pct[row[[level]] >= 40 & row[[level]] < 45] <- "40-44"
+            row$pct[row[[level]] >= 45 & row[[level]] < 50] <- "45-49"
+            row$pct[row[[level]] >= 50 & row[[level]] < 55] <- "50-54"
+            row$pct[row[[level]] >= 55 & row[[level]] < 60] <- "55-59"
+            row$pct[row[[level]] >= 60 & row[[level]] < 65] <- "60-64"
+            row$pct[row[[level]] >= 65 & row[[level]] < 70] <- "65-69"
+            row$pct[row[[level]] >= 70 & row[[level]] < 75] <- "70-74"
+            row$pct[row[[level]] >= 75 & row[[level]] < 80] <- "75-79"
+            row$pct[row[[level]] >= 80 & row[[level]] < 85] <- "80-84"
+            row$pct[row[[level]] >= 85 & row[[level]] < 90] <- "85-89"
+            row$pct[row[[level]] >= 90 & row[[level]] < 95] <- "90-94"
+            row$pct[row[[level]] >= 95] <- "GE 95"
+            row$merge <- 0
+        }
+        
+        # N = 21-40
+        else if (row$NStudents > 20 & row$NStudents <= 40) {
+            row$pct[row[[level]] < 11] <- "LE 10"
+            row$pct[row[[level]] >= 11 & row[[level]] < 20] <- "11-19"
+            row$pct[row[[level]] >= 20 & row[[level]] < 30] <- "20-29"
+            row$pct[row[[level]] >= 30 & row[[level]] < 40] <- "30-39"
+            row$pct[row[[level]] >= 40 & row[[level]] < 50] <- "40-49"
+            row$pct[row[[level]] >= 50 & row[[level]] < 60] <- "50-59"
+            row$pct[row[[level]] >= 60 & row[[level]] < 70] <- "60-69"
+            row$pct[row[[level]] >= 70 & row[[level]] < 80] <- "70-79"
+            row$pct[row[[level]] >= 80 & row[[level]] < 90] <- "80-89"
+            row$pct[row[[level]] >= 90] <- "GE 90"
+            row$merge <- 0
+        }
+        
+        # N = 10-20
+        else {
+            if (level == "Level1" | level == "Level2") {
+                row$pct <- row[["Level1"]] + row[["Level2"]]
+            }
+            else {
+                row$pct <- row[["Level3"]] + row[["Level4"]]
+            }
+            row$merge <- 1
+        }
+        masked <- rbind(row, masked)    
+    }
+    masked <- masked[order(masked$SORT, 
+                           masked$SORTCODE, 
+                           masked$schnumb, 
+                           masked$Grade), ]
+}
+
+level1 <- mask(web, "Level1")
+colnames(level1)[15] <- "PL1"
+colnames(level1)[16] <- "Merge1"
+
+level2 <- mask(web, "Level2")
+colnames(level2)[15] <- "PL2"
+colnames(level2)[16] <- "Merge2"
+
+level3 <- mask(web, "Level3")
+colnames(level3)[15] <- "PL3"
+colnames(level3)[16] <- "Merge3"
+
+level4 <- mask(web, "Level4")
+colnames(level4)[15] <- "PL4"
+colnames(level4)[16] <- "Merge4"
+
+
+# merge files
+webfile <- cbind(level1, level2[c(15, 16)], level3[c(15, 16)], level4[c(15, 16)])
+View(webfile)
+
+# check if Merge1 and Merge2 are the same
+all(webfile$Merge1 == webfile$Merge2)
+
+# check if Merge3 and Merge4 are the same
+all(webfile$Merge3 == webfile$Merge4)
+
+# formatting and removing columns
+webfile$PL1[webfile$Merge1 == 1] <- "^"
+webfile$PL4[webfile$Merge4 == 1] <- "^"
+
+names(webfile)
+final <- webfile[c("schnumb", "DistrictName", "SchoolName", "Grade", "Group", 
+                   "PL1", "PL2", "PL3", "PL4")]
+
+final <- final[final$Group == "All Students", ]
+
+final$Group <- NULL
+
+# renames columns
+names(final) <- c("Code", "District", "School", "Grade", 
+                  "Level 1 (%)", "Level 2 (%)", "Level 3 (%)", "Level 4 (%)")
+head(final)
+
+# save output
+write.csv(final, "SBA Science MASKED Web 2018-2019.csv",
+          row.names = FALSE)
