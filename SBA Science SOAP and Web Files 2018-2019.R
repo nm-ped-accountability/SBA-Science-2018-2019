@@ -23,12 +23,13 @@ schools <- schools[schools$ï..SY == 2019, ]
 ################################################################################
 ## recode variables
 
-# schnumb
-dat$schnumb <- dat$DisCode * 1000 + dat$SchCode
-dat$schnumb2 <- dat$S_DISTRICT_CODE * 1000 + dat$S_LOCATION_CODE
-nrow(dat[dat$schnumb != dat$schnumb2, ]) #453 records have different schnumbs
-dat$schnumb2 <- NULL
+# test_schnumb
+dat$test_schnumb <- dat$DisCode * 1000 + dat$SchCode
 # vendor schnumbs will be used
+
+# STARS_schnumb
+dat$STARS_schnumb <- dat$S_DISTRICT_CODE * 1000 + dat$S_LOCATION_CODE
+sum(dat$test_schnumb != dat$STARS_schnumb) #394 records have different schnumbs
 
 # distcode
 dat$distcode <- dat$DisCode
@@ -61,15 +62,16 @@ dat$dob <- mdy(dat$dob)
 str(dat$dob)
 
 # test grade
-dat$testgrade <- dat$Grade
-table(dat$testgrade)
-dat$testgrade[dat$testgrade == "HS"] <- "11"
-table(dat$testgrade)
+dat$test_grade <- dat$Grade
+table(dat$test_grade)
+dat$test_grade[dat$test_grade == "HS"] <- "11"
+table(dat$test_grade)
 # test grade will be used
 
 # STARS grade
-dat$STARSgrade <- dat$S_GRADE
-table(dat$STARSgrade)
+dat$STARS_grade <- dat$S_GRADE
+table(dat$STARS_grade)
+sum(dat$test_grade != dat$STARS_grade) #2131 records have different grades
 
 # eth
 dat$eth <- dat$S_ETNICITY
@@ -80,13 +82,10 @@ dat$eth[dat$eth == "Native Hawaiian or Other Pacific Islander"] <- "Asian"
 dat$eth[dat$eth == "Black or African American"] <- "African American"
 dat$eth[dat$eth == "American Indian/Alaskan Native"] <- "Native American"
 table(dat$eth)
-str(dat$eth)
 
 # gender
 dat$gender <- dat$S_GENDER
 table(dat$gender)
-table(dat$gender)
-str(dat$gender)
 
 # swd
 dat$swd <- dat$S_SPECIAL_ED
@@ -94,7 +93,6 @@ table(dat$swd)
 dat$swd[dat$swd == "Y"] <- "Students with Disabilities"
 dat$swd[dat$swd == "N"] <- "Non SWD"
 table(dat$swd)
-dat$swd <- as.factor(dat$swd)
 
 # frl
 table(dat$S_FRLP)
@@ -118,7 +116,7 @@ table(dat$migrant)
 # active, national guard, researve
 dat$military[dat$S_MILITARY == "Active"] <- "Military"
 dat$military[dat$S_MILITARY == "National Guard"] <- "Military"
-dat$military[dat$S_MILITARY == "Reserve"] <- "Military"
+dat$military[dat$S_MILITARY == "Reserve"] <- "Non Military"
 dat$military[dat$S_MILITARY == "NULL"] <- "Non Military"
 table(dat$military)
 
@@ -208,6 +206,7 @@ dat$TC <- dat$SciTC
 
 # snapshot date
 dat$status <- dat$STATUS
+table(dat$status) #4 records not from the current year
 
 ################################################################################
 ## remove invalid records and save file
@@ -225,6 +224,7 @@ dat <- dat[c(395:426)]
 # save file
 write.csv(dat, "SBA Science Spring 2018-2019_Cleaned_07012019.csv",
           row.names = FALSE, quote = FALSE, na = "")
+nrow(dat) #2019: 72065
 
 ################################################################################
 ### calculate rates for SOAP and web files
@@ -233,7 +233,7 @@ dat$allstudents <- "All Students"
 dat$statecode <- 999
 
 groups <- c("allstudents", "gender", "eth", "swd", "frl", 
-            "ell", "migrant", "military", "homeless", "foster")
+            "ell", "migrant", "homeless", "military", "foster")
 
 dat$level1[dat$PL == 1] <- 1
 dat$level1[is.na(dat$level1)] <- 0
@@ -311,10 +311,11 @@ all$SORTCODE[all$Group == "Native American"] <- 8
 all$SORTCODE[all$Group == "Economically Disadvantaged"] <- 9
 all$SORTCODE[all$Group == "Students with Disabilities"] <- 10
 all$SORTCODE[all$Group == "English Learners"] <- 11
-all$SORTCODE[all$Group == "Homeless"] <- 12
-all$SORTCODE[all$Group == "Military"] <- 13
-all$SORTCODE[all$Group == "Foster Care"] <- 14
-all$SORTCODE[all$Group == "Migrant"] <- 15
+all$SORTCODE[all$Group == "Migrant"] <- 12
+all$SORTCODE[all$Group == "Homeless"] <- 13
+all$SORTCODE[all$Group == "Military"] <- 14
+all$SORTCODE[all$Group == "Foster Care"] <- 15
+
 table(all$SORTCODE)
 
 # add district and school names
@@ -421,7 +422,7 @@ mask <- function(dataset, level) {
             row$pct[row[[level]] >= 30 & row[[level]] < 35] <- "30-34"
             row$pct[row[[level]] >= 35 & row[[level]] < 40] <- "35-39"
             row$pct[row[[level]] >= 40 & row[[level]] < 45] <- "40-44"
-            row$pct[row[[level]] >= 45 & row[[level]] < 40] <- "45-49"
+            row$pct[row[[level]] >= 45 & row[[level]] < 50] <- "45-49"
             row$pct[row[[level]] >= 50 & row[[level]] < 55] <- "50-54"
             row$pct[row[[level]] >= 55 & row[[level]] < 60] <- "55-59"
             row$pct[row[[level]] >= 60 & row[[level]] < 65] <- "60-64"
