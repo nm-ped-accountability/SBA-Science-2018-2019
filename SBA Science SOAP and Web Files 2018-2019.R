@@ -15,9 +15,12 @@ library(tidyverse)
 raw <- read.csv("NMSBA1819Admin1StudentResultsUNMASKED_Updated 07052019.csv",
                 header = TRUE, stringsAsFactors = FALSE)
 dat <- raw
+nrow(dat) 
+# 2019: 74320
 
 schools <- read.csv("Master Schools 2019 V3.csv", 
                     header = TRUE, stringsAsFactors = FALSE)
+# select the current school year
 schools <- schools[schools$ï..SY == 2019, ]
 
 ################################################################################
@@ -29,15 +32,24 @@ dat$test_schnumb <- dat$DisCode * 1000 + dat$SchCode
 
 # STARS_schnumb
 dat$STARS_schnumb <- dat$S_DISTRICT_CODE * 1000 + dat$S_LOCATION_CODE
-sum(dat$test_schnumb != dat$STARS_schnumb) #394 records have different schnumbs
+sum(dat$test_schnumb != dat$STARS_schnumb) 
+#2019: 394 records have different schnumbs
 
 # distcode
 dat$distcode <- dat$DisCode
+
+# distname
 dat$distname <- schools$distname[match(dat$distcode, schools$distcode)]
+# check for missing distnames
+dat[is.na(dat$distname), ] #none
 
 # schcode
 dat$schcode <- dat$SchCode
-dat$schname <- schools$schname[match(dat$schnumb, schools$schnumb)]
+
+# schname
+dat$schname <- schools$schname[match(dat$test_schnumb, schools$schnumb)]
+# check for missing schnames
+dat[is.na(dat$schname), ] #none
 
 # stid
 dat$stid <- dat$STUID
@@ -71,7 +83,8 @@ table(dat$test_grade)
 # STARS grade
 dat$STARS_grade <- dat$S_GRADE
 table(dat$STARS_grade)
-sum(dat$test_grade != dat$STARS_grade) #2131 records have different grades
+sum(dat$test_grade != dat$STARS_grade) 
+#2019: 2131 records have different grades
 
 # eth
 dat$eth <- dat$S_ETNICITY
@@ -114,6 +127,7 @@ table(dat$migrant)
 
 # military
 # active, national guard, researve
+table(dat$S_MILITARY)
 dat$military[dat$S_MILITARY == "Active"] <- "Military"
 dat$military[dat$S_MILITARY == "National Guard"] <- "Military"
 dat$military[dat$S_MILITARY == "Reserve"] <- "Non Military"
@@ -206,7 +220,8 @@ dat$TC <- dat$SciTC
 
 # snapshot date
 dat$status <- dat$STATUS
-table(dat$status) #4 records not from the current year
+table(dat$status) 
+#2019: 4 records not from the current year, 4 manual corrections
 
 ################################################################################
 ## remove invalid records and save file
@@ -219,12 +234,14 @@ dat <- dat[dat$PL != 5, ]
 
 # remove extra columns
 names(dat)
-dat <- dat[c(395:426)]
+dat <- dat[c(395:427)]
+names(dat)
 
 # save file
-write.csv(dat, "SBA Science Spring 2018-2019_Cleaned_07012019.csv",
+write.csv(dat, "SBA Science Spring 2018-2019_Cleaned_07092019.csv",
           row.names = FALSE, quote = FALSE, na = "")
-nrow(dat) #2019: 72065
+nrow(dat) 
+# 2019: 72065
 
 ################################################################################
 ### calculate rates for SOAP and web files
@@ -244,15 +261,15 @@ dat$level3[is.na(dat$level3)] <- 0
 dat$level4[dat$PL == 4] <- 1
 dat$level4[is.na(dat$level4)] <- 0
 
-Rates <- data.frame()
 
 rate <- function(dataset, code) {
+    Rates <- data.frame()
     
     for (group in groups) {
         GroupRate <- dataset %>%
-            select(code, group, testgrade,
+            select(code, group, test_grade,
                    level1, level2, level3, level4, proficient) %>%
-            group_by_(code, group, "testgrade") %>%
+            group_by(dataset[[code]], dataset[[group]], test_grade) %>%
             summarise(NStudents = n(),
                       Level1 = (sum(level1) / NStudents) * 100,
                       Level2 = (sum(level2) / NStudents) * 100,
@@ -284,7 +301,7 @@ districtRates$SchoolCode <- 0
 districtRates$SORT <- 2
 
 # school rates
-schoolRates <- rate(dat, "schnumb")
+schoolRates <- rate(dat, "test_schnumb")
 schoolRates$schnumb <- schoolRates$Code
 schoolRates$DistrictCode <- floor(schoolRates$Code / 1000)
 schoolRates$SchoolCode <- schoolRates$Code - (schoolRates$DistrictCode * 1000)
@@ -335,9 +352,12 @@ SOAP <- all[c("schnumb", "DistrictCode", "DistrictName",
               "SchoolCode", "SchoolName", "Grade", "Group", "NStudents",
               "Level1", "Level2", "Level3", "Level4", "ProficiencyRate",
               "SORTCODE", "SORT")]
-nrow(SOAP) #20819
+nrow(SOAP) 
+# 2019: 20805
+
 SOAP <- SOAP[!is.na(SOAP$SORTCODE), ]
-nrow(SOAP) #12529
+nrow(SOAP) 
+#2019: 12515
 
 # round to one digit
 head(SOAP)
@@ -353,7 +373,7 @@ SOAP <- SOAP[order(SOAP$SORT, SOAP$schnumb, SOAP$SORTCODE, SOAP$Grade), ]
 SOAP$SORT <- NULL
 SOAP$SORTCODE <- NULL
 
-write.csv(SOAP, "SBA Science UNMASKED SOAP 2018-2019.csv",
+write.csv(SOAP, "SBA Science UNMASKED SOAP 2018-2019 07092019.csv",
           row.names = FALSE, quote = FALSE, na = "")
 
 ################################################################################
@@ -383,13 +403,14 @@ web$total <- NULL
 ## masking
 
 # remove records with fewer than 10 students
-nrow(web) #12529
+nrow(web) 
+#2019: 12515
 web <- web[web$NStudents >= 10, ]
-nrow(web) #7158
-
-masked <- data.frame()
+nrow(web) 
+#2019: 7154
 
 mask <- function(dataset, level) {
+    masked <- data.frame()
     
     for (row in 1:nrow(dataset)) {
         row <- dataset[row, ]
@@ -514,12 +535,13 @@ colnames(level4)[16] <- "Merge4"
 
 # merge files
 webfile <- cbind(level1, level2[c(15, 16)], level3[c(15, 16)], level4[c(15, 16)])
+head(webfile)
 
 # check if Merge1 and Merge2 are the same
-all(webfile$Merge1 == webfile$Merge2)
+all(webfile$Merge1 == webfile$Merge2) #true
 
 # check if Merge3 and Merge4 are the same
-all(webfile$Merge3 == webfile$Merge4)
+all(webfile$Merge3 == webfile$Merge4) #true
 
 # formatting and removing columns
 webfile$PL1[webfile$Merge1 == 1] <- "^"
@@ -539,5 +561,5 @@ names(final) <- c("Code", "District", "School", "Grade",
 head(final)
 
 # save output
-write.csv(final, "SBA Science MASKED Web 2018-2019.csv",
+write.csv(final, "SBA Science MASKED Web 2018-2019 07092019.csv",
           row.names = FALSE)
