@@ -156,7 +156,7 @@ dat$subtest <- "SCI"
 dat$testlang <- dat$SciTestLanguage
 table(dat$testlang)
 
-# accomodation
+# accommodation
 dat$accommodation[dat$ELLSciAccom20 == 1] <- 1
 dat$accommodation[dat$ELLSciAccom21 == 1] <- 1
 dat$accommodation[dat$ELLSciAccom22 == 1] <- 1
