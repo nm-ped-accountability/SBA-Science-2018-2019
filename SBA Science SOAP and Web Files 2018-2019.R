@@ -517,6 +517,16 @@ mask <- function(dataset, level) {
                 row$pct <- row[["Level3"]] + row[["Level4"]]
             }
             row$merge <- 1
+            row$pct1 <- row$pct
+            row$pct[row$pct1 < 21] <- "LE 20"
+            row$pct[row$pct1 >= 21 & row$pct1 < 30] <- "21-29"
+            row$pct[row$pct1 >= 30 & row$pct1 < 40] <- "30-39"
+            row$pct[row$pct1 >= 40 & row$pct1 < 50] <- "40-49"
+            row$pct[row$pct1 >= 50 & row$pct1 < 60] <- "50-59"
+            row$pct[row$pct1 >= 60 & row$pct1 < 70] <- "60-69"
+            row$pct[row$pct1 >= 70 & row$pct1 < 80] <- "70-79"
+            row$pct[row$pct1 >= 80] <- "GE 80"
+            row$pct1 <- NULL
         }
         masked <- rbind(row, masked)    
     }
