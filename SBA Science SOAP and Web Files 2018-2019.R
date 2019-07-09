@@ -359,6 +359,11 @@ SOAP <- SOAP[!is.na(SOAP$SORTCODE), ]
 nrow(SOAP) 
 #2019: 12515
 
+# remove district-level rates for state charter schools
+SOAP <- SOAP[!(SOAP$DistrictCode > 500 & SOAP$SchoolName == "Districtwide"), ]
+nrow(SOAP)
+# 2019: 11729
+
 # round to one digit
 head(SOAP)
 SOAP$Level1 <- round(SOAP$Level1, digits = 1)
@@ -385,6 +390,11 @@ web <- all[c("schnumb", "DistrictCode", "DistrictName",
 
 web <- web[!is.na(web$SORTCODE), ]
 
+# remove district-level rates for state charter schools
+web <- web[!(web$DistrictCode > 500 & web$SchoolName == "Districtwide"), ]
+nrow(web)
+# 2019: 11729
+
 # round to integers
 head(web)
 web$Level1 <- round(web$Level1, digits = 0)
@@ -404,10 +414,10 @@ web$total <- NULL
 
 # remove records with fewer than 10 students
 nrow(web) 
-#2019: 12515
+#2019: 12729
 web <- web[web$NStudents >= 10, ]
 nrow(web) 
-#2019: 7154
+#2019: 6750
 
 mask <- function(dataset, level) {
     masked <- data.frame()
