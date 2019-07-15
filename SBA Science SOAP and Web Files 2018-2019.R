@@ -365,12 +365,22 @@ nrow(SOAP)
 # 2019: 11729
 
 # round to one digit
+# R rounds 0.5 to even, but this function rounds 0.5 up
+round2 <- function(x, digits) {
+    posneg <- sign(x)
+    z <- abs(x) * (10 ^ digits)
+    z <- z + 0.5
+    z <- trunc(z)
+    z <- z / (10 ^ digits)
+    z * posneg
+}
+
 head(SOAP)
-SOAP$Level1 <- round(SOAP$Level1, digits = 1)
-SOAP$Level2 <- round(SOAP$Level2, digits = 1)
-SOAP$Level3 <- round(SOAP$Level3, digits = 1)
-SOAP$Level4 <- round(SOAP$Level4, digits = 1)
-SOAP$ProficiencyRate <- round(SOAP$ProficiencyRate, digits = 1)
+SOAP$Level1 <- round2(SOAP$Level1, digits = 1)
+SOAP$Level2 <- round2(SOAP$Level2, digits = 1)
+SOAP$Level3 <- round2(SOAP$Level3, digits = 1)
+SOAP$Level4 <- round2(SOAP$Level4, digits = 1)
+SOAP$ProficiencyRate <- round2(SOAP$ProficiencyRate, 1)
 head(SOAP)
 
 # sorting
@@ -378,7 +388,7 @@ SOAP <- SOAP[order(SOAP$SORT, SOAP$schnumb, SOAP$SORTCODE, SOAP$Grade), ]
 SOAP$SORT <- NULL
 SOAP$SORTCODE <- NULL
 
-write.csv(SOAP, "SBA Science UNMASKED SOAP 2018-2019 07092019.csv",
+write.csv(SOAP, "SBA Science UNMASKED SOAP 2018-2019 07152019.csv",
           row.names = FALSE, quote = FALSE, na = "")
 
 ################################################################################
@@ -397,15 +407,18 @@ nrow(web)
 
 # round to integers
 head(web)
-web$Level1 <- round(web$Level1, digits = 0)
-web$Level2 <- round(web$Level2, digits = 0)
-web$Level3 <- round(web$Level3, digits = 0)
-web$Level4 <- round(web$Level4, digits = 0)
+web$Level1 <- round2(web$Level1, digits = 0)
+web$Level2 <- round2(web$Level2, digits = 0)
+web$Level3 <- round2(web$Level3, digits = 0)
+web$Level4 <- round2(web$Level4, digits = 0)
 head(web)
 
 # check totals
 web$total <- rowSums(web[, c("Level1", "Level2", "Level3", "Level4")])
-range(web$total) #98-101
+range(web$total) #99-102
+web[web$total == 99, ]
+web[web$total == 101, ]
+web[web$total == 102, ]
 web$total <- NULL
 
 
@@ -581,7 +594,7 @@ names(final) <- c("Code", "District", "School", "Grade",
 head(final)
 
 # save output
-write.csv(final, "SBA Science MASKED Web 2018-2019 07092019.csv",
+write.csv(final, "SBA Science MASKED Web 2018-2019 07152019.csv",
           row.names = FALSE)
 
 
