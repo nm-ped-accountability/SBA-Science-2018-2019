@@ -12,7 +12,7 @@ library(Hmisc)
 library(tidyverse)
 
 # open files
-raw <- read.csv("NMSBA1819Admin1StudentResultsUNMASKED_Updated 07052019.csv",
+raw <- read.csv("NMSBA1819Admin1StudentResultsUNMASKED_Updated 2019-07-16.csv",
                 header = TRUE, stringsAsFactors = FALSE)
 dat <- raw
 nrow(dat) 
@@ -238,8 +238,13 @@ dat <- dat[c(395:427)]
 names(dat)
 
 # save file
-write.csv(dat, "SBA Science Spring 2018-2019_Cleaned_07092019.csv",
-          row.names = FALSE, quote = FALSE, na = "")
+current_date <- Sys.Date()
+
+file_name <- paste("SBA Science Spring 2018-2019 Cleaned ", 
+                   current_date, ".csv", sep = "")
+
+write.csv(dat, file = file_name, row.names = FALSE)
+
 nrow(dat) 
 # 2019: 72065
 
@@ -343,6 +348,9 @@ all$SchoolName[all$SORT == 1] <- "All Students"
 all$SchoolName[all$SORT == 2] <- "Districtwide"
 
 # check for missing district and school names
+all <- all[!is.na(all$schnumb), ]
+nrow(all)
+# 2019: 16278
 all[is.na(all$DistrictName), ] #none
 all[is.na(all$SchoolName), ] #none
 
@@ -389,8 +397,13 @@ SOAP <- SOAP[order(SOAP$SORT, SOAP$schnumb, SOAP$SORTCODE, SOAP$Grade), ]
 SOAP$SORT <- NULL
 SOAP$SORTCODE <- NULL
 
-write.csv(SOAP, "SBA Science UNMASKED SOAP 2018-2019 07152019.csv",
-          row.names = FALSE, quote = FALSE, na = "")
+# save output
+current_date <- Sys.Date()
+
+file_name <- paste("SBA Science UNMASKED SOAP 2018-2019 ", 
+                   current_date, ".csv", sep = "")
+
+write.csv(SOAP, file = file_name, row.names = FALSE)
 
 ################################################################################
 # web file
@@ -595,8 +608,12 @@ names(final) <- c("Code", "District", "School", "Grade",
 head(final)
 
 # save output
-write.csv(final, "SBA Science MASKED Web 2018-2019 07152019.csv",
-          row.names = FALSE)
+current_date <- Sys.Date()
+
+file_name <- paste("SBA Science MASKED Web 2018-2019 ", 
+                   current_date, ".csv", sep = "")
+
+write.csv(final, file = file_name, row.names = FALSE)
 
 
 ################################################################################
