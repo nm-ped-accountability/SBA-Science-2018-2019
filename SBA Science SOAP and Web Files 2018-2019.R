@@ -239,12 +239,8 @@ names(dat)
 
 # save file
 current_date <- Sys.Date()
-
-file_name <- paste("SBA Science Spring 2018-2019 Cleaned ", 
-                   current_date, ".csv", sep = "")
-
+file_name <- paste0("SBA Science Spring 2018-2019 Cleaned ", current_date, ".csv")
 write.csv(dat, file = file_name, row.names = FALSE)
-
 nrow(dat) 
 # 2019: 72065
 
@@ -399,10 +395,7 @@ SOAP$SORTCODE <- NULL
 
 # save output
 current_date <- Sys.Date()
-
-file_name <- paste("SBA Science UNMASKED SOAP 2018-2019 ", 
-                   current_date, ".csv", sep = "")
-
+file_name <- paste0("SBA Science UNMASKED SOAP 2018-2019 ", current_date, ".csv")
 write.csv(SOAP, file = file_name, row.names = FALSE)
 
 ################################################################################
@@ -609,10 +602,7 @@ head(final)
 
 # save output
 current_date <- Sys.Date()
-
-file_name <- paste("SBA Science MASKED Web 2018-2019 ", 
-                   current_date, ".csv", sep = "")
-
+file_name <- paste0("SBA Science MASKED Web 2018-2019 ", current_date, ".csv")
 write.csv(final, file = file_name, row.names = FALSE)
 
 
