@@ -12,7 +12,7 @@ library(Hmisc)
 library(tidyverse)
 
 # open files
-raw <- read.csv("NMSBA1819Admin1StudentResultsUNMASKED_Updated 2019-07-16.csv",
+raw <- read.csv("NMSBA1819Admin1StudentResultsUNMASKED_Updated 2019-07-17.csv",
                 header = TRUE, stringsAsFactors = FALSE)
 dat <- raw
 nrow(dat) 
