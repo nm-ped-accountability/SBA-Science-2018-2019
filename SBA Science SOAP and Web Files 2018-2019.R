@@ -12,7 +12,7 @@ library(Hmisc)
 library(tidyverse)
 
 # open files
-raw <- read.csv("NMSBA1819Admin1StudentResultsUNMASKED_Updated 2019-07-17.csv",
+raw <- read.csv("NMSBA1819Admin1StudentResultsUNMASKED_Updated 2019-07-18.csv",
                 header = TRUE, stringsAsFactors = FALSE)
 dat <- raw
 nrow(dat) 
@@ -22,6 +22,8 @@ schools <- read.csv("Master Schools 2019 V3.csv",
                     header = TRUE, stringsAsFactors = FALSE)
 # select the current school year
 schools <- schools[schools$ï..SY == 2019, ]
+nrow(schools)
+# 2019: 1802
 
 ################################################################################
 ## recode variables
@@ -236,13 +238,14 @@ dat <- dat[dat$PL != 5, ]
 names(dat)
 dat <- dat[c(395:427)]
 names(dat)
+nrow(dat) 
+# 2019: 72051
 
 # save file
 current_date <- Sys.Date()
 file_name <- paste0("SBA Science Spring 2018-2019 Cleaned ", current_date, ".csv")
 write.csv(dat, file = file_name, row.names = FALSE)
-nrow(dat) 
-# 2019: 72065
+
 
 ################################################################################
 ### calculate rates for SOAP and web files
@@ -346,7 +349,7 @@ all$SchoolName[all$SORT == 2] <- "Districtwide"
 # check for missing district and school names
 all <- all[!is.na(all$schnumb), ]
 nrow(all)
-# 2019: 16278
+# 2019: 20805
 all[is.na(all$DistrictName), ] #none
 all[is.na(all$SchoolName), ] #none
 
@@ -437,7 +440,7 @@ nrow(web)
 #2019: 12729
 web <- web[web$NStudents >= 10, ]
 nrow(web) 
-#2019: 6750
+#2019: 6747
 
 mask <- function(dataset, level) {
     masked <- data.frame()
@@ -599,6 +602,8 @@ final$Group <- NULL
 names(final) <- c("Code", "District", "School", "Grade", 
                   "Level 1 (%)", "Level 2 (%)", "Level 3 (%)", "Level 4 (%)")
 head(final)
+nrow(final)
+# 2019: 1059
 
 # save output
 current_date <- Sys.Date()
