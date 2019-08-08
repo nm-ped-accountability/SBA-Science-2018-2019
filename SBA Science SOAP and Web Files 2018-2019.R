@@ -6,7 +6,9 @@
 ################################################################################
 
 rm(list = ls())
+
 library(stringi)
+library(stringr)
 library(lubridate)
 library(Hmisc)
 library(tidyverse)
@@ -39,6 +41,7 @@ sum(dat$test_schnumb != dat$STARS_schnumb)
 
 # distcode
 dat$distcode <- dat$DisCode
+dat$STARS_distcode <- dat$S_DISTRICT_CODE
 
 # distname
 dat$distname <- schools$distname[match(dat$distcode, schools$distcode)]
@@ -47,6 +50,7 @@ dat[is.na(dat$distname), ] #none
 
 # schcode
 dat$schcode <- dat$SchCode
+dat$STARS_schcode <- dat$S_LOCATION_CODE
 
 # schname
 dat$schname <- schools$schname[match(dat$test_schnumb, schools$schnumb)]
@@ -60,7 +64,7 @@ dat$stid <- dat$STUID
 dat$last <- dat$S_LASTNAME
 
 # first
-dat$fist <- dat$S_FIRSTNAME
+dat$first <- dat$S_FIRSTNAME
 
 # mi
 dat$mi <- dat$S_MIDDLE_NAME
@@ -159,42 +163,43 @@ dat$testlang <- dat$SciTestLanguage
 table(dat$testlang)
 
 # accommodation
-dat$accommodation[dat$ELLSciAccom20 == 1] <- 1
-dat$accommodation[dat$ELLSciAccom21 == 1] <- 1
-dat$accommodation[dat$ELLSciAccom22 == 1] <- 1
-dat$accommodation[dat$ELLSciAccom23 == 1] <- 1
-dat$accommodation[dat$ELLSciAccom24 == 1] <- 1
-dat$accommodation[dat$ELLSciAccom25 == 1] <- 1
-dat$accommodation[dat$ELLSciAccom26 == 1] <- 1
-dat$accommodation[dat$ELLSciAccom27 == 1] <- 1
-dat$accommodation[dat$ELLSciAccom28 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom01 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom02 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom03 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom04 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom05 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom06 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom07 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom08 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom09 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom10 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom11 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom12 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom13 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom14 == 1] <- 1
-dat$accommodation[dat$SWDSciAccom15 == 1] <- 1
-dat$accommodation[dat$SciAccomLineReader == 1] <- 1
-dat$accommodation[dat$SciAccomMaskingAnswer == 1] <- 1
-dat$accommodation[dat$SciAccomMaskingCustom == 1] <- 1
-dat$accommodation[dat$SciAccomNativeLanguage == 1] <- 1
-dat$accommodation[dat$SciAccomReverseContrast == 1] <- 1
-dat$accommodation[(is.na(dat$accommodation))] <- 0
+dat$accommodation[dat$ELLSciAccom20 == 1] <- "Y"
+dat$accommodation[dat$ELLSciAccom21 == 1] <- "Y"
+dat$accommodation[dat$ELLSciAccom22 == 1] <- "Y"
+dat$accommodation[dat$ELLSciAccom23 == 1] <- "Y"
+dat$accommodation[dat$ELLSciAccom24 == 1] <- "Y"
+dat$accommodation[dat$ELLSciAccom25 == 1] <- "Y"
+dat$accommodation[dat$ELLSciAccom26 == 1] <- "Y"
+dat$accommodation[dat$ELLSciAccom27 == 1] <- "Y"
+dat$accommodation[dat$ELLSciAccom28 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom01 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom02 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom03 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom04 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom05 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom06 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom07 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom08 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom09 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom10 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom11 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom12 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom13 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom14 == 1] <- "Y"
+dat$accommodation[dat$SWDSciAccom15 == 1] <- "Y"
+dat$accommodation[dat$SciAccomLineReader == 1] <- "Y"
+dat$accommodation[dat$SciAccomMaskingAnswer == 1] <- "Y"
+dat$accommodation[dat$SciAccomMaskingCustom == 1] <- "Y"
+dat$accommodation[dat$SciAccomNativeLanguage == 1] <- "Y"
+dat$accommodation[dat$SciAccomReverseContrast == 1] <- "Y"
+dat$accommodation[(is.na(dat$accommodation))] <- "N"
 table(dat$accommodation)
 
 # cbt
-dat$cbt[dat$SciCBT == 1] <- "PBT only"
-dat$cbt[dat$SciCBT == 2] <- "CBT only"
-dat$cbt[dat$SciCBT == 3] <- "CBT and PBT"
+dat$cbt[dat$SciCBT == 1] <- "N" # PBT
+dat$cbt[dat$SciCBT == 2] <- "Y" # CBT
+dat$cbt[dat$SciCBT == 3] <- "Y" # CBT and PBT\
+table(dat$SciCBT)
 table(dat$cbt)
 
 # testbookid
@@ -202,20 +207,21 @@ dat$testbookid <- dat$BookletID
 
 # scale scores
 dat$SciScaleScore <- as.character(dat$SciScaleScore)
-dat$SS <- stri_sub(dat$SciScaleScore, -2, -1) #keep only the last 2 digits
+dat$ss <- stri_sub(dat$SciScaleScore, -2, -1) #keep only the last 2 digits
 table(dat$SciScaleScore)
-table(dat$SS)
+table(dat$ss)
 
 # proficiency levels
 table(dat$SciPerformanceLevel)
-dat$PL <- dat$SciPerformanceLevel
+dat$pl <- dat$SciPerformanceLevel
 # 2018-2019: 2255 invalid scores
 
 # proficient
-dat$proficient[dat$PL == 1] <- 0
-dat$proficient[dat$PL == 2] <- 0
-dat$proficient[dat$PL == 3] <- 1
-dat$proficient[dat$PL == 4] <- 1
+dat$proficient[dat$pl == 1] <- "N"
+dat$proficient[dat$pl == 2] <- "N"
+dat$proficient[dat$pl == 3] <- "Y"
+dat$proficient[dat$pl == 4] <- "Y"
+table(dat$proficient)
 
 # test completion code
 dat$TC <- dat$SciTC
@@ -227,16 +233,16 @@ table(dat$status)
 
 ################################################################################
 ## remove invalid records and save file
-table(dat$TC[dat$PL != 5]) #all valid records have TC 0
-table(dat$SS[dat$PL == 5])
-table(dat$SS[dat$PL != 5])
+table(dat$TC[dat$pl != 5]) #all valid records have TC 0
+table(dat$ss[dat$pl == 5])
+table(dat$ss[dat$pl != 5])
 
 # remove invalid records
-dat <- dat[dat$PL != 5, ]
+dat <- dat[dat$pl != 5, ]
 
 # remove extra columns
 names(dat)
-dat <- dat[c(395:427)]
+dat <- dat[c(395:429)]
 names(dat)
 nrow(dat) 
 # 2019: 72051
@@ -249,6 +255,49 @@ write.csv(dat, file = file_name, row.names = FALSE)
 ################################################################################
 ### create DAD file
 ################################################################################
+names(dat)
+
+dad <- dat %>%
+    mutate("TestbookID" = testbookid,
+           "StID" = stid,
+           "Pref_SchNumb" = test_schnumb,
+           "Pref_DistCode" = distcode,
+           "Pref_DistName" = distname,
+           "Pref_SchCode" = schcode,
+           "Pref_SchName" = schname,
+           "Vendor_SchNumb" = test_schnumb,
+           "Vendor_DistCode" = distcode,
+           "Vendor_SchCode" = schcode,
+           "STARS_SchNumb" = STARS_schnumb,
+           "STARS_DistCode" = STARS_distcode,
+           "STARS_SchCode" = STARS_schcode,
+           "Last" = str_to_title(last),
+           "First" = str_to_title(first),
+           "MI" = str_to_upper(mi),
+           "Tested_Grade" = test_grade,
+           "STARS_Grade" = STARS_grade,
+           "Pref_Grade" = test_grade,
+           "Accomm" = accommodation,
+           "CBT" = cbt,
+           "Testname" = "SBA Science",
+           "Subtest" = "SCIENCE",
+           "TestCode" = "SCI",
+           "TestLang" = testlang,
+           "PL" = pl,
+           "Proficient" = proficient,
+           "SS" = ss,
+           "NewSS" = NA,
+           "SSRead" = NA,
+           "SSWrite" = NA,
+           "IstationTime" = NA) %>%
+    select(36:67)
+
+str(dad)
+
+# save file
+current_date <- Sys.Date()
+file_name <- paste0("SBA Science for 2019 DAD ", current_date, ".csv")
+write.csv(dad, file = file_name, row.names = FALSE, na = "")
 
 
 ################################################################################
