@@ -30,18 +30,15 @@ nrow(schools)
 ################################################################################
 ## recode variables
 
+# remove BIE schools
+dat <- dat[dat$DisCode < 600, ]
+
 # test_schnumb
 dat$test_schnumb <- dat$DisCode * 1000 + dat$SchCode
 # vendor schnumbs will be used
 
-# STARS_schnumb
-dat$STARS_schnumb <- dat$S_DISTRICT_CODE * 1000 + dat$S_LOCATION_CODE
-sum(dat$test_schnumb != dat$STARS_schnumb) 
-#2019: 394 records have different schnumbs
-
 # distcode
 dat$distcode <- dat$DisCode
-dat$STARS_distcode <- dat$S_DISTRICT_CODE
 
 # distname
 dat$distname <- schools$distname[match(dat$distcode, schools$distcode)]
@@ -50,7 +47,6 @@ dat[is.na(dat$distname), ] #none
 
 # schcode
 dat$schcode <- dat$SchCode
-dat$STARS_schcode <- dat$S_LOCATION_CODE
 
 # schname
 dat$schname <- schools$schname[match(dat$test_schnumb, schools$schnumb)]
@@ -58,16 +54,16 @@ dat$schname <- schools$schname[match(dat$test_schnumb, schools$schnumb)]
 dat[is.na(dat$schname), ] #none
 
 # stid
-dat$stid <- dat$STUID
+dat$stid <- dat$rptStudID
 
 # last
-dat$last <- dat$S_LASTNAME
+dat$last <- dat$LName
 
 # first
-dat$first <- dat$S_FIRSTNAME
+dat$first <- dat$FName
 
 # mi
-dat$mi <- dat$S_MIDDLE_NAME
+dat$mi <- dat$MI
 dat$mi <- toupper(dat$mi)
 table(dat$mi)
 dat$mi <- gsub("-", "", dat$mi)
@@ -75,8 +71,9 @@ dat$mi <- gsub("NULL", "", dat$mi)
 table(dat$mi)
 
 # dob
-dat$dob <- dat$S_DOB
-dat$dob <- mdy(dat$dob)
+str(dat$DOB)
+dat$dob <- dat$DOB
+dat$dob <- ymd(dat$dob)
 str(dat$dob)
 
 # test grade
@@ -86,77 +83,53 @@ dat$test_grade[dat$test_grade == "HS"] <- "11"
 table(dat$test_grade)
 # test grade will be used
 
-# STARS grade
-dat$STARS_grade <- dat$S_GRADE
-table(dat$STARS_grade)
-sum(dat$test_grade != dat$STARS_grade) 
-#2019: 2131 records have different grades
-
 # eth
-dat$eth <- dat$S_ETNICITY
+dat$eth <- dat$Ethnicity
 table(dat$eth)
-table(dat$S_HISPANIC_INDICATOR)
-dat$eth[dat$S_HISPANIC_INDICATOR == "Yes"] <- "Hispanic"
-dat$eth[dat$eth == "Native Hawaiian or Other Pacific Islander"] <- "Asian"
-dat$eth[dat$eth == "Black or African American"] <- "African American"
-dat$eth[dat$eth == "American Indian/Alaskan Native"] <- "Native American"
+dat$eth[dat$eth == "H"] <- "Hispanic"
+dat$eth[dat$eth == "A"] <- "Asian"
+dat$eth[dat$eth == "B"] <- "African American"
+dat$eth[dat$eth == "I"] <- "Native American"
+dat$eth[dat$eth == "C"] <- "Caucasian"
 table(dat$eth)
 
 # gender
-dat$gender <- dat$S_GENDER
+dat$gender <- dat$Gender
+table(dat$gender)
+dat$gender[dat$gender == "F"] <- "Female"
+dat$gender[dat$gender == "M"] <- "Male"
 table(dat$gender)
 
 # swd
-dat$swd <- dat$S_SPECIAL_ED
+dat$swd <- dat$SpecialED
 table(dat$swd)
-dat$swd[dat$swd == "Y"] <- "Students with Disabilities"
-dat$swd[dat$swd == "N"] <- "Non SWD"
+dat$swd[dat$swd == 1] <- "Students with Disabilities"
+dat$swd[dat$swd == 0] <- "Non SWD"
 table(dat$swd)
 
 # frl
-table(dat$S_FRLP)
-dat$frl[dat$S_FRLP == "F"] <- "Economically Disadvantaged"
-dat$frl[dat$S_FRLP == "R"] <- "Economically Disadvantaged"
-dat$frl[dat$S_FRLP == "N"] <- "Non ED"
+table(dat$EconDis)
+dat$frl[dat$EconDis == 1] <- "Economically Disadvantaged"
+dat$frl[dat$EconDis == 0] <- "Non ED"
 table(dat$frl)
 
 # ell
-dat$ell[dat$S_ELL_STATUS == "Y"] <- "English Learners"
-dat$ell[dat$S_ELL_STATUS == "N"] <- "Non EL"
+table(dat$ELL)
+dat$ell[dat$ELL == 1] <- "English Learners"
+dat$ell[dat$ELL == 0] <- "Non EL"
 table(dat$ell)
 
 # migrant
-dat$migrant[dat$S_MIGRANT == "Y"] <- "Migrants"
-dat$migrant[dat$S_MIGRANT == "N"] <- "Non Migrant"
-dat$migrant[dat$S_MIGRANT == "NULL"] <- "Non Migrant"
+table(dat$Migrant)
+dat$migrant[dat$Migrant == 1] <- "Migrants"
+dat$migrant[dat$migrant == 0] <- "Non Migrant"
 table(dat$migrant)
 
-# military
-# active, national guard, researve
-table(dat$S_MILITARY)
-dat$military[dat$S_MILITARY == "Active"] <- "Military"
-dat$military[dat$S_MILITARY == "National Guard"] <- "Military"
-dat$military[dat$S_MILITARY == "Reserve"] <- "Non Military"
-dat$military[dat$S_MILITARY == "NULL"] <- "Non Military"
-table(dat$military)
-
-# homeless
-dat$homeless <- dat$S_HOMELESS
-table(dat$homeless)
-dat$homeless <- gsub("NULL", "Not Homeless", dat$homeless)
-table(dat$homeless)
-
-# foster
-table(dat$S_FOSTER)
-dat$foster[dat$S_FOSTER == "Y"] <- "Foster Care"
-dat$foster[dat$S_FOSTER == "NULL"] <- "Not Foster Care"
-table(dat$foster)
-
 # test name
-dat$testname <- "SBASCI"
+dat$testname <- "SBASCI_FALL"
 
 # subtest
-dat$subtest <- "SCI"
+dat$subtest <- "SCI_FALL"
 
 # test language
 dat$testlang <- dat$SciTestLanguage
@@ -214,7 +187,7 @@ table(dat$ss)
 # proficiency levels
 table(dat$SciPerformanceLevel)
 dat$pl <- dat$SciPerformanceLevel
-# 2018-2019: 2255 invalid scores
+# 2018-2019: 1085 invalid scores
 
 # proficient
 dat$proficient[dat$pl == 1] <- "N"
@@ -226,10 +199,6 @@ table(dat$proficient)
 # test completion code
 dat$TC <- dat$SciTC
 
-# snapshot date
-dat$status <- dat$STATUS
-table(dat$status) 
-#2019: 4 records not from the current year, 4 manual corrections
 
 ################################################################################
 ## remove invalid records and save file
@@ -242,14 +211,14 @@ dat <- dat[dat$pl != 5, ]
 
 # remove extra columns
 names(dat)
-dat <- dat[c(395:429)]
+dat <- dat[c(361:387)]
 names(dat)
 nrow(dat) 
-# 2019: 72051
+# 2018 fall: 11404
 
 # save file
 current_date <- Sys.Date()
-file_name <- paste0("SBA Science Spring 2018-2019 Cleaned ", current_date, ".csv")
+file_name <- paste0("SBA Science Fall 2018-2019 Cleaned ", current_date, ".csv")
 write.csv(dat, file = file_name, row.names = FALSE)
 
 ################################################################################
@@ -260,43 +229,60 @@ names(dat)
 dad <- dat %>%
     mutate("TestbookID" = testbookid,
            "StID" = stid,
-           "Pref_SchNumb" = test_schnumb,
-           "Pref_DistCode" = distcode,
-           "Pref_DistName" = distname,
-           "Pref_SchCode" = schcode,
-           "Pref_SchName" = schname,
            "Vendor_SchNumb" = test_schnumb,
            "Vendor_DistCode" = distcode,
+           "Vendor_DistName" = distname,
            "Vendor_SchCode" = schcode,
-           "STARS_SchNumb" = STARS_schnumb,
-           "STARS_DistCode" = STARS_distcode,
-           "STARS_SchCode" = STARS_schcode,
+           "Vendor_SchName" = schname,
            "Last" = str_to_title(last),
            "First" = str_to_title(first),
            "MI" = str_to_upper(mi),
            "Tested_Grade" = test_grade,
-           "STARS_Grade" = STARS_grade,
+           "Tested_Grade_Listen" = NA,
+           "Tested_Grade_Read" = NA,
+           "Tested_Grade_Speak" = NA,
+           "Tested_Grade_Write" = NA,
+           "STARS_Grade" = NA,
            "Pref_Grade" = test_grade,
            "Accomm" = accommodation,
            "CBT" = cbt,
-           "Testname" = "SBA Science",
-           "Subtest" = "SCIENCE",
-           "TestCode" = "SCI",
+           "CBT_Listen" = NA,
+           "CBT_Read" = NA,
+           "CBT_Speak" = NA,
+           "CBT_Write" = NA,
+           "Testname" = "SBA Science FALL",
+           "Subtest" = "SCIENCE_FALL",
+           "TestCode" = "SCI_FALL",
            "TestLang" = testlang,
            "PL" = pl,
+           "PL_Listen" = NA,
+           "PL_Read" = NA,
+           "PL_Speak" = NA,
+           "PL_Write" = NA,
+           "PL_Comprehension" = NA,
+           "PL_Oral" = NA,
+           "PL_Literacy" = NA,
            "Proficient" = proficient,
            "SS" = ss,
            "NewSS" = NA,
-           "SSRead" = NA,
-           "SSWrite" = NA,
-           "IstationTime" = NA) %>%
-    select(36:67)
+           "SS_Listen" = NA,
+           "SS_Read" = NA,
+           "SS_Speak" = NA,
+           "SS_Write" = NA,
+           "SS_Comprehension" = NA,
+           "SS_Oral" = NA,
+           "SS_Literacy" = NA,
+           "IstationTime" = NA,
+           "Pearson_SGP" = NA) %>%
+    select(28:74)
+
+names(dad)
 
 str(dad)
 
 # save file
 current_date <- Sys.Date()
-file_name <- paste0("SBA Science for 2019 DAD ", current_date, ".csv")
+file_name <- paste0("SBA Science FALL for 2019 DAD ", current_date, ".csv")
 write.csv(dad, file = file_name, row.names = FALSE, na = "")
 
 
