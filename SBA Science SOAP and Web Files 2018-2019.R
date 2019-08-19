@@ -260,43 +260,60 @@ names(dat)
 dad <- dat %>%
     mutate("TestbookID" = testbookid,
            "StID" = stid,
-           "Pref_SchNumb" = test_schnumb,
-           "Pref_DistCode" = distcode,
-           "Pref_DistName" = distname,
-           "Pref_SchCode" = schcode,
-           "Pref_SchName" = schname,
            "Vendor_SchNumb" = test_schnumb,
            "Vendor_DistCode" = distcode,
+           "Vendor_DistName" = distname,
            "Vendor_SchCode" = schcode,
-           "STARS_SchNumb" = STARS_schnumb,
-           "STARS_DistCode" = STARS_distcode,
-           "STARS_SchCode" = STARS_schcode,
+           "Vendor_SchName" = schname,
            "Last" = str_to_title(last),
            "First" = str_to_title(first),
            "MI" = str_to_upper(mi),
            "Tested_Grade" = test_grade,
+           "Tested_Grade_Listen" = NA,
+           "Tested_Grade_Read" = NA,
+           "Tested_Grade_Speak" = NA,
+           "Tested_Grade_Write" = NA,
+           "Pref_Grade" = test_grade,
            "STARS_Grade" = STARS_grade,
            "Pref_Grade" = test_grade,
            "Accomm" = accommodation,
            "CBT" = cbt,
-           "Testname" = "SBA Science",
-           "Subtest" = "SCIENCE",
-           "TestCode" = "SCI",
+           "CBT_Listen" = NA,
+           "CBT_Read" = NA,
+           "CBT_Speak" = NA,
+           "CBT_Write" = NA,
+           "Testname" = "SBA Science SPRING",
+           "Subtest" = "SCIENCE_SPRING",
+           "TestCode" = "SCI_SPRING",
            "TestLang" = testlang,
            "PL" = pl,
+           "PL_Listen" = NA,
+           "PL_Read" = NA,
+           "PL_Speak" = NA,
+           "PL_Write" = NA,
+           "PL_Comprehension" = NA,
+           "PL_Oral" = NA,
+           "PL_Literacy" = NA,
            "Proficient" = proficient,
            "SS" = ss,
            "NewSS" = NA,
-           "SSRead" = NA,
-           "SSWrite" = NA,
-           "IstationTime" = NA) %>%
-    select(36:67)
+           "SS_Listen" = NA,
+           "SS_Read" = NA,
+           "SS_Speak" = NA,
+           "SS_Write" = NA,
+           "SS_Comprehension" = NA,
+           "SS_Oral" = NA,
+           "SS_Literacy" = NA,
+           "IstationTime" = NA,
+           "Pearson_SGP" = NA) %>%
+    select(36:82)
 
+names(dad)
 str(dad)
 
 # save file
 current_date <- Sys.Date()
-file_name <- paste0("SBA Science for 2019 DAD ", current_date, ".csv")
+file_name <- paste0("SBA Science Spring for 2019 DAD ", current_date, ".csv")
 write.csv(dad, file = file_name, row.names = FALSE, na = "")
 
 
