@@ -158,6 +158,13 @@ dat$testname <- "SBASCI"
 # subtest
 dat$subtest <- "SCI"
 
+# testcode
+table(dat$test_grade)
+dat$testcode[dat$test_grade == "4"] <- "SCI04"
+dat$testcode[dat$test_grade == "7"] <- "SCI07"
+dat$testcode[dat$test_grade == "11"] <- "SCI11"
+table(dat$testcode)
+
 # test language
 dat$testlang <- dat$SciTestLanguage
 table(dat$testlang)
@@ -198,7 +205,7 @@ table(dat$accommodation)
 # cbt
 dat$cbt[dat$SciCBT == 1] <- "N" # PBT
 dat$cbt[dat$SciCBT == 2] <- "Y" # CBT
-dat$cbt[dat$SciCBT == 3] <- "Y" # CBT and PBT\
+dat$cbt[dat$SciCBT == 3] <- "Y" # CBT and PBT
 table(dat$SciCBT)
 table(dat$cbt)
 
@@ -242,7 +249,7 @@ dat <- dat[dat$pl != 5, ]
 
 # remove extra columns
 names(dat)
-dat <- dat[c(395:429)]
+dat <- dat[c(395:430)]
 names(dat)
 nrow(dat) 
 # 2019: 72051
@@ -283,8 +290,8 @@ dad <- dat %>%
            "CBT_Speak" = NA,
            "CBT_Write" = NA,
            "Testname" = "SBA Science SPRING",
-           "Subtest" = "SCIENCE_SPRING",
-           "TestCode" = "SCI_SPRING",
+           "Subtest" = subtest,
+           "TestCode" = testcode,
            "TestLang" = testlang,
            "PL" = pl,
            "PL_Listen" = NA,
@@ -306,7 +313,7 @@ dad <- dat %>%
            "SS_Literacy" = NA,
            "IstationTime" = NA,
            "Pearson_SGP" = NA) %>%
-    select(36:82)
+    select(37:83)
 
 names(dad)
 str(dad)
