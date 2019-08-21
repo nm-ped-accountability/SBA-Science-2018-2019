@@ -129,7 +129,7 @@ table(dat$migrant)
 dat$testname <- "SBA Science FALL"
 
 # subtest
-dat$subtest <- "SCI"
+dat$subtest <- "SCIENCE"
 
 # testcode
 table(dat$test_grade)
@@ -289,7 +289,7 @@ str(dad)
 
 # save file
 current_date <- Sys.Date()
-file_name <- paste0("SBA Science FALL for 2019 DAD ", current_date, ".csv")
+file_name <- paste0("SBA Science Fall for 2019 DAD ", current_date, ".csv")
 write.csv(dad, file = file_name, row.names = FALSE, na = "")
 
 
