@@ -126,10 +126,17 @@ dat$migrant[dat$migrant == 0] <- "Non Migrant"
 table(dat$migrant)
 
 # test name
-dat$testname <- "SBASCI_FALL"
+dat$testname <- "SBA Science FALL"
 
 # subtest
-dat$subtest <- "SCI_FALL"
+dat$subtest <- "SCI"
+
+# testcode
+table(dat$test_grade)
+dat$testcode[dat$test_grade == "4"] <- "SCI04"
+dat$testcode[dat$test_grade == "7"] <- "SCI07"
+dat$testcode[dat$test_grade == "11"] <- "SCI11"
+table(dat$testcode)
 
 # test language
 dat$testlang <- dat$SciTestLanguage
@@ -171,7 +178,7 @@ table(dat$accommodation)
 # cbt
 dat$cbt[dat$SciCBT == 1] <- "N" # PBT
 dat$cbt[dat$SciCBT == 2] <- "Y" # CBT
-dat$cbt[dat$SciCBT == 3] <- "Y" # CBT and PBT\
+dat$cbt[dat$SciCBT == 3] <- "Y" # CBT and PBT
 table(dat$SciCBT)
 table(dat$cbt)
 
@@ -211,7 +218,7 @@ dat <- dat[dat$pl != 5, ]
 
 # remove extra columns
 names(dat)
-dat <- dat[c(361:387)]
+dat <- dat[c(361:388)]
 names(dat)
 nrow(dat) 
 # 2018 fall: 11404
@@ -250,9 +257,9 @@ dad <- dat %>%
            "CBT_Read" = NA,
            "CBT_Speak" = NA,
            "CBT_Write" = NA,
-           "Testname" = "SBA Science FALL",
-           "Subtest" = "SCIENCE_FALL",
-           "TestCode" = "SCI_FALL",
+           "Testname" = testname,
+           "Subtest" = subtest,
+           "TestCode" = testcode,
            "TestLang" = testlang,
            "PL" = pl,
            "PL_Listen" = NA,
@@ -274,7 +281,7 @@ dad <- dat %>%
            "SS_Literacy" = NA,
            "IstationTime" = NA,
            "Pearson_SGP" = NA) %>%
-    select(28:74)
+    select(29:75)
 
 names(dad)
 
