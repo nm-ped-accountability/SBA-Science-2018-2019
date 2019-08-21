@@ -153,7 +153,7 @@ dat$foster[dat$S_FOSTER == "NULL"] <- "Not Foster Care"
 table(dat$foster)
 
 # test name
-dat$testname <- "SBASCI"
+dat$testname <- "SBA Science SPRING"
 
 # subtest
 dat$subtest <- "SCI"
@@ -289,7 +289,7 @@ dad <- dat %>%
            "CBT_Read" = NA,
            "CBT_Speak" = NA,
            "CBT_Write" = NA,
-           "Testname" = "SBA Science SPRING",
+           "Testname" = testname,
            "Subtest" = subtest,
            "TestCode" = testcode,
            "TestLang" = testlang,
