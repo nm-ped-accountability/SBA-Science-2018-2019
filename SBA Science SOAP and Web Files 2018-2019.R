@@ -156,7 +156,7 @@ table(dat$foster)
 dat$testname <- "SBA Science SPRING"
 
 # subtest
-dat$subtest <- "SCI"
+dat$subtest <- "SCIENCE"
 
 # testcode
 table(dat$test_grade)
