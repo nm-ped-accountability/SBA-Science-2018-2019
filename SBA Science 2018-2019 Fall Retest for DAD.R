@@ -178,7 +178,7 @@ table(dat$accommodation)
 # cbt
 dat$cbt[dat$SciCBT == 1] <- "N" # PBT
 dat$cbt[dat$SciCBT == 2] <- "Y" # CBT
-dat$cbt[dat$SciCBT == 3] <- "Y" # CBT and PBT
+dat$cbt[dat$SciCBT == 3] <- "M" # CBT and PBT - mixed
 table(dat$SciCBT)
 table(dat$cbt)
 
@@ -197,10 +197,10 @@ dat$pl <- dat$SciPerformanceLevel
 # 2018-2019: 1085 invalid scores
 
 # proficient
-dat$proficient[dat$pl == 1] <- "N"
-dat$proficient[dat$pl == 2] <- "N"
-dat$proficient[dat$pl == 3] <- "Y"
-dat$proficient[dat$pl == 4] <- "Y"
+dat$proficient[dat$pl == 1] <- 0
+dat$proficient[dat$pl == 2] <- 0
+dat$proficient[dat$pl == 3] <- 1
+dat$proficient[dat$pl == 4] <- 1
 table(dat$proficient)
 
 # test completion code
